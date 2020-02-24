@@ -23,7 +23,7 @@ const {
  * @param {object} firebase - Internal firebase object
  * @param {object} config - Config object
  * @param {string} config.path - Location within Firebase Stroage at which to upload files.
- * @param {Blob} config.file - File Blob to be uploaded
+ * @param {Blob|string} config.file - File Blob or file uri for react-native to be uploaded
  * @param {string} config.dbPath - Datbase path to write file meta data to
  * @param {object} config.options - Options
  * @param {string|Function} config.options.name - Name of file. If a function

@@ -178,7 +178,7 @@ export function writeMetadataToDb({
  * @param {object} firebase - Internal firebase object
  * @param {object} opts - File data object
  * @param {object} opts.path - Location within Firebase Stroage at which to upload file.
- * @param {Blob} opts.file - File to upload
+ * @param {Blob|string} opts.file - File to upload
  * @param {object} opts.fileMetadata - Metadata to pass along to storageRef.put call
  * @returns {Promise} Promise which resolves after file upload
  * @private
@@ -188,10 +188,20 @@ export function uploadFileWithProgress(
   firebase,
   { path, file, filename, meta, fileMetadata }
 ) {
-  const uploadEvent = firebase
-    .storage()
-    .ref(`${path}/${filename}`)
-    .put(file, fileMetadata)
+  const ref = firebase.storage().ref(`${path}/${filename}`)
+  let uploadEvent
+
+  if (typeof file === 'string') {
+    if (
+      firebase.storage.Native &&
+      file.startsWith(firebase.storage.Native.DOCUMENT_DIRECTORY_PATH)
+    ) {
+      // file is react-native uri`
+      uploadEvent = ref.putFile(file, fileMetadata)
+    }
+  } else {
+    uploadEvent = ref.put(file, fileMetadata)
+  }
 
   const unListen = uploadEvent.on(firebase.storage.TaskEvent.STATE_CHANGED, {
     next: snapshot => {
